@@ -2,7 +2,7 @@ import abc
 import contextlib
 import datetime
 from collections.abc import AsyncIterator
-from typing import Literal, TypeVar
+from typing import Any, Literal, TypeVar
 
 import httpx
 import mcp.types
@@ -77,6 +77,10 @@ class ClientTransport(abc.ABC):
         """Get the session ID for this transport, if available."""
         return None
 
-    def _set_auth(self, auth: httpx.Auth | Literal["oauth"] | str | None):
+    def _set_auth(
+        self,
+        auth: httpx.Auth | Literal["oauth"] | str | None,
+        auth_config: dict[str, Any] | None = None,
+    ):
         if auth is not None:
             raise ValueError("This transport does not support auth")

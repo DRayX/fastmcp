@@ -251,6 +251,7 @@ class RemoteMCPServer(BaseModel):
                 headers=self.headers,
                 auth=self.auth,
                 sse_read_timeout=self.sse_read_timeout,
+                auth_config=self.authentication,
             )
         else:
             # Both "http" and "streamable-http" map to StreamableHttpTransport
@@ -259,6 +260,7 @@ class RemoteMCPServer(BaseModel):
                 headers=self.headers,
                 auth=self.auth,
                 sse_read_timeout=self.sse_read_timeout,
+                auth_config=self.authentication,
             )
 
 

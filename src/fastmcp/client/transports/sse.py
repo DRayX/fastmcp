@@ -33,6 +33,7 @@ class SSETransport(ClientTransport):
         sse_read_timeout: datetime.timedelta | float | int | None = None,
         httpx_client_factory: McpHttpClientFactory | None = None,
         verify: ssl.SSLContext | bool | str | None = None,
+        auth_config: dict[str, Any] | None = None,
     ):
         if isinstance(url, AnyUrl):
             url = str(url)
@@ -59,17 +60,24 @@ class SSETransport(ClientTransport):
                 stacklevel=2,
             )
 
-        self._set_auth(auth)
+        self._set_auth(auth, auth_config)
 
         self.sse_read_timeout = normalize_timeout_to_timedelta(sse_read_timeout)
 
-    def _set_auth(self, auth: httpx.Auth | Literal["oauth"] | str | None):
+    def _set_auth(
+        self,
+        auth: httpx.Auth | Literal["oauth"] | str | None,
+        auth_config: dict[str, Any] | None = None,
+    ):
         resolved: httpx.Auth | None
         if auth == "oauth":
             resolved = OAuth(
                 self.url,
+                scopes=auth_config.get('scopes'),
                 httpx_client_factory=self.httpx_client_factory
-                or self._make_verify_factory(),
+                    or self._make_verify_factory(),
+                client_id=auth_config.get('client_id'),
+                client_secret=auth_config.get('client_secret'),
             )
         elif isinstance(auth, OAuth):
             auth._bind(self.url)

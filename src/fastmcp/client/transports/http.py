@@ -34,6 +34,7 @@ class StreamableHttpTransport(ClientTransport):
         sse_read_timeout: datetime.timedelta | float | int | None = None,
         httpx_client_factory: McpHttpClientFactory | None = None,
         verify: ssl.SSLContext | bool | str | None = None,
+        auth_config: dict[str, Any] | None = None
     ):
         """Initialize a Streamable HTTP transport.
 
@@ -77,7 +78,7 @@ class StreamableHttpTransport(ClientTransport):
                 stacklevel=2,
             )
 
-        self._set_auth(auth)
+        self._set_auth(auth, auth_config)
 
         if sse_read_timeout is not None:
             if fastmcp.settings.deprecation_warnings:
@@ -95,13 +96,20 @@ class StreamableHttpTransport(ClientTransport):
 
         self._get_session_id_cb: Callable[[], str | None] | None = None
 
-    def _set_auth(self, auth: httpx.Auth | Literal["oauth"] | str | None):
+    def _set_auth(
+        self,
+        auth: httpx.Auth | Literal["oauth"] | str | None,
+        auth_config: dict[str, Any] | None = None,
+    ):
         resolved: httpx.Auth | None
         if auth == "oauth":
             resolved = OAuth(
                 self.url,
+                scopes=auth_config.get('scopes'),
                 httpx_client_factory=self.httpx_client_factory
-                or self._make_verify_factory(),
+                    or self._make_verify_factory(),
+                client_id=auth_config.get('client_id'),
+                client_secret=auth_config.get('client_secret'),
             )
         elif isinstance(auth, OAuth):
             auth._bind(self.url)
