@@ -34,7 +34,7 @@ class StreamableHttpTransport(ClientTransport):
         sse_read_timeout: datetime.timedelta | float | int | None = None,
         httpx_client_factory: McpHttpClientFactory | None = None,
         verify: ssl.SSLContext | bool | str | None = None,
-        auth_config: dict[str, Any] | None = None
+        auth_config: dict[str, Any] | None = None,
     ):
         """Initialize a Streamable HTTP transport.
 
@@ -102,14 +102,15 @@ class StreamableHttpTransport(ClientTransport):
         auth_config: dict[str, Any] | None = None,
     ):
         resolved: httpx.Auth | None
+        auth_config = auth_config or {}
         if auth == "oauth":
             resolved = OAuth(
                 self.url,
-                scopes=auth_config.get('scopes'),
+                scopes=auth_config.get("scopes"),
                 httpx_client_factory=self.httpx_client_factory
-                    or self._make_verify_factory(),
-                client_id=auth_config.get('client_id'),
-                client_secret=auth_config.get('client_secret'),
+                or self._make_verify_factory(),
+                client_id=auth_config.get("client_id"),
+                client_secret=auth_config.get("client_secret"),
             )
         elif isinstance(auth, OAuth):
             auth._bind(self.url)

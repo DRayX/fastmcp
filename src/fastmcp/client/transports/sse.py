@@ -69,15 +69,16 @@ class SSETransport(ClientTransport):
         auth: httpx.Auth | Literal["oauth"] | str | None,
         auth_config: dict[str, Any] | None = None,
     ):
+        auth_config = auth_config or {}
         resolved: httpx.Auth | None
         if auth == "oauth":
             resolved = OAuth(
                 self.url,
-                scopes=auth_config.get('scopes'),
+                scopes=auth_config.get("scopes"),
                 httpx_client_factory=self.httpx_client_factory
-                    or self._make_verify_factory(),
-                client_id=auth_config.get('client_id'),
-                client_secret=auth_config.get('client_secret'),
+                or self._make_verify_factory(),
+                client_id=auth_config.get("client_id"),
+                client_secret=auth_config.get("client_secret"),
             )
         elif isinstance(auth, OAuth):
             auth._bind(self.url)
